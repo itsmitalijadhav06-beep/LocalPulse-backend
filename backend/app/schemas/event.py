@@ -26,16 +26,16 @@ class EventResponse(BaseModel):
         json_encoders={datetime: lambda v: v.isoformat()},
     )
 
-    id: str
+    id: int
     title: str
     description: str
-    organizer_id: str
+    organizer_id: int
     organizer_name: str
     event_date: datetime
     location_address: str
     latitude: float
     longitude: float
-    attendees: List[str]
+    attendees: List[int]
     max_attendees: Optional[int]
     created_at: datetime
     updated_at: datetime

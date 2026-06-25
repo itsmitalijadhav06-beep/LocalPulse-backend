@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Union
 from pydantic import BaseModel, ConfigDict
 from app.core.constants import NotificationType
 
@@ -9,9 +10,9 @@ class NotificationResponse(BaseModel):
         json_encoders={datetime: lambda v: v.isoformat()},
     )
 
-    id: str
-    user_id: str
-    type: NotificationType
+    id: int
+    user_id: int
+    type: Union[NotificationType, str]
     title: str
     body: str
     is_read: bool

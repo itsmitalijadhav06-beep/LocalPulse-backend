@@ -78,6 +78,48 @@ async def update_issue(
         data=issue.model_dump()
     )
 
+@router.patch("/{issue_id}", response_class=JSONResponse)
+async def patch_issue(
+    issue_id: str,
+    issue_update: IssueUpdate,
+    current_user: dict = Depends(get_current_user)
+) -> JSONResponse:
+    """
+    Patch details or status of a reported issue.
+    """
+    issue = await IssueService.update_issue(issue_id, issue_update)
+    if not issue:
+        return standard_response(
+            success=False,
+            message="Issue update failed. Issue not found.",
+            status_code=status.HTTP_404_NOT_FOUND
+        )
+    return standard_response(
+        success=True,
+        message="Issue updated successfully.",
+        data=issue.model_dump()
+    )
+
+@router.delete("/{issue_id}", response_class=JSONResponse)
+async def delete_issue(
+    issue_id: str,
+    current_user: dict = Depends(get_current_user)
+) -> JSONResponse:
+    """
+    Delete a reported community issue.
+    """
+    success = await IssueService.delete_issue(issue_id)
+    if not success:
+        return standard_response(
+            success=False,
+            message="Issue not found.",
+            status_code=status.HTTP_404_NOT_FOUND
+        )
+    return standard_response(
+        success=True,
+        message="Issue deleted successfully."
+    )
+
 @router.post("/{issue_id}/upvote", response_class=JSONResponse)
 async def upvote_issue(
     issue_id: str,

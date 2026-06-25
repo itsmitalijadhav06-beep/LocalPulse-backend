@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 from fastapi import Request, HTTPException, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -20,7 +21,7 @@ async def global_exception_handler(request: Request, exc: Exception) -> JSONResp
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
     )
 
-async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
+async def http_exception_handler(request: Request, exc: Any) -> JSONResponse:
     """
     Handle standard HTTPExceptions thrown during request processing.
     """
@@ -33,7 +34,7 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
 
 async def validation_exception_handler(
     request: Request, 
-    exc: RequestValidationError
+    exc: Any
 ) -> JSONResponse:
     """
     Handle schema verification and query validation errors.

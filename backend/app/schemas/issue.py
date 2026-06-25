@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Union
 from pydantic import BaseModel, ConfigDict, Field
 from app.core.constants import IssueStatus
 
@@ -15,7 +15,7 @@ class IssueUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
     category: Optional[str] = None
-    status: Optional[IssueStatus] = None
+    status: Optional[Union[IssueStatus, str]] = None
     assigned_provider_id: Optional[str] = None
     image_url: Optional[str] = None
 
@@ -25,17 +25,17 @@ class IssueResponse(BaseModel):
         json_encoders={datetime: lambda v: v.isoformat()},
     )
 
-    id: str
+    id: int
     title: str
     description: str
     category: str
-    status: IssueStatus
-    reporter_id: str
-    assigned_provider_id: Optional[str] = None
+    status: Union[IssueStatus, str]
+    reported_by: int
+    assigned_provider_id: Optional[int] = None
     latitude: float
     longitude: float
     image_url: Optional[str] = None
     upvotes: int
-    subscribers: List[str]
+    subscribers: List[int]
     created_at: datetime
     updated_at: datetime

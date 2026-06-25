@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Union
 from pydantic import BaseModel, Field
 from app.core.constants import ProviderCategory
 from app.utils.helpers import get_utc_now
@@ -11,7 +11,7 @@ class ProviderModel(BaseModel):
     id: str = Field(default_factory=lambda: "prv_" + datetime.utcnow().strftime("%Y%m%d%H%M%S"))
     name: str
     user_id: str  # Associated user account
-    category: ProviderCategory = ProviderCategory.OTHER
+    category: Union[ProviderCategory, str] = ProviderCategory.OTHER
     contact_email: str
     contact_phone: str
     service_radius_km: float = 10.0

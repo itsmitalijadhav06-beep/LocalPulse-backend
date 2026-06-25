@@ -31,7 +31,11 @@ class AuthService:
         logger.info("Hashing password...")
         hashed_password = get_password_hash(user_in.password)
         
+        from app.core.database import get_next_sequence_value
+        user_id = await get_next_sequence_value("users")
+        
         user_document = {
+            "user_id": user_id,
             "email": user_in.email,
             "password": hashed_password,
             "full_name": user_in.full_name,
@@ -54,7 +58,7 @@ class AuthService:
         logger.info("Registration completed.")
         
         return UserResponse(
-            id=str(saved_user["_id"]),
+            id=saved_user["user_id"],
             email=saved_user["email"],
             full_name=saved_user["full_name"],
             role=saved_user["role"],
@@ -96,18 +100,18 @@ class AuthService:
     @classmethod
     async def get_user_by_id(cls, user_id: str) -> Optional[UserResponse]:
         logger.info(f"AuthService: Fetching user details for {user_id}")
-        try:
-            obj_id = ObjectId(user_id)
-        except Exception:
-            logger.warning(f"Invalid ObjectId format: {user_id}")
-            return None
+        user_doc = None
+        
+        if isinstance(user_id, int) or (isinstance(user_id, str) and user_id.isdigit()):
+            user_doc = await db_client.db.users.find_one({"user_id": int(user_id)})
+        elif isinstance(user_id, str) and ObjectId.is_valid(user_id):
+            user_doc = await db_client.db.users.find_one({"_id": ObjectId(user_id)})
             
-        user_doc = await db_client.db.users.find_one({"_id": obj_id})
         if not user_doc:
             return None
             
         return UserResponse(
-            id=str(user_doc["_id"]),
+            id=user_doc["user_id"],
             email=user_doc["email"],
             full_name=user_doc["full_name"],
             role=user_doc["role"],

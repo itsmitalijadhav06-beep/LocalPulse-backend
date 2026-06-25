@@ -1,5 +1,5 @@
 import logging
-from typing import Any, AsyncGenerator
+from typing import Any, AsyncGenerator, Optional
 from motor.motor_asyncio import AsyncIOMotorClient
 from app.core.config import settings
 
@@ -23,7 +23,7 @@ class MongoDBManager:
     Manager for MongoDB client connections.
     """
     def __init__(self) -> None:
-        self.client: AsyncIOMotorClient = None
+        self.client: Optional[AsyncIOMotorClient] = None
         self.db: Any = None
 
     async def connect_to_database(self) -> None:
@@ -36,8 +36,14 @@ class MongoDBManager:
             # Fail startup if MongoDB cannot be reached
             await self.client.admin.command("ping")
             self.db = self.client[settings.MONGODB_DB_NAME]
+            
+            # Create geospatial indexes
+            await self.db.issues.create_index([("location", "2dsphere")])
+            await self.db.events.create_index([("location", "2dsphere")])
+            
             logger.info("✅ Connected to MongoDB Atlas")
             logger.info(f"Database: {settings.MONGODB_DB_NAME}")
+            await run_startup_migrations()
         except Exception as e:
             logger.error(f"❌ Failed to connect to MongoDB: {e}")
             raise e
@@ -49,6 +55,44 @@ class MongoDBManager:
             logger.info("MongoDB connection closed.")
 
 db_client = MongoDBManager()
+
+async def get_next_sequence_value(sequence_name: str) -> int:
+    """
+    Increments and returns the next sequence number for a collection.
+    """
+    from pymongo import ReturnDocument
+    sequence_document = await db_client.db.counters.find_one_and_update(
+        {"_id": sequence_name},
+        {"$inc": {"seq": 1}},
+        upsert=True,
+        return_document=ReturnDocument.AFTER
+    )
+    return sequence_document["seq"]
+
+async def run_startup_migrations() -> None:
+    """
+    Ensures legacy documents without sequential IDs are backfilled.
+    """
+    logger.info("Running startup migrations for sequential IDs...")
+    collections_and_ids = {
+        "users": "user_id",
+        "issues": "issue_id",
+        "events": "event_id",
+        "providers": "provider_id",
+        "comments": "comment_id",
+        "notifications": "notification_id",
+    }
+    for coll_name, id_field in collections_and_ids.items():
+        collection = db_client.db[coll_name]
+        cursor = collection.find({id_field: {"$exists": False}})
+        async for doc in cursor:
+            seq_val = await get_next_sequence_value(coll_name)
+            await collection.update_one(
+                {"_id": doc["_id"]},
+                {"$set": {id_field: seq_val}}
+            )
+            logger.info(f"Assigned sequential ID {seq_val} ({id_field}) to {coll_name} doc {doc['_id']}")
+    logger.info("Startup migrations completed.")
 
 async def get_db() -> AsyncGenerator[Any, None]:
     """

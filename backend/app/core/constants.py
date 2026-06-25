@@ -6,6 +6,7 @@ class UserRole(str, Enum):
     ADMIN = "admin"
 
 class IssueStatus(str, Enum):
+    OPEN = "Open"
     REPORTED = "reported"
     UNDER_REVIEW = "under_review"
     ASSIGNED = "assigned"

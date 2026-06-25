@@ -22,8 +22,10 @@ async def get_dashboard_summary(
     if user_role == UserRole.ADMIN.value:
         summary_data = await DashboardService.get_admin_summary()
     elif user_role == UserRole.PROVIDER.value:
-        # In a real app we'd retrieve their actual provider ID mapping
-        summary_data = await DashboardService.get_provider_summary(provider_id="prv_mock_user")
+        from app.services.provider_service import ProviderService
+        provider = await ProviderService.get_provider_by_user_id(current_user["id"])
+        provider_id = provider.id if provider else current_user["id"]
+        summary_data = await DashboardService.get_provider_summary(provider_id=provider_id)
     else:
         summary_data = await DashboardService.get_citizen_summary(
             latitude=latitude,

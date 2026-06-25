@@ -13,9 +13,9 @@ class CommentResponse(BaseModel):
         json_encoders={datetime: lambda v: v.isoformat()},
     )
 
-    id: str
-    issue_id: str
-    author_id: str
+    id: int
+    issue_id: int
+    author_id: int
     author_name: str
     content: str
     created_at: datetime

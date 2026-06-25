@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Union
 from pydantic import BaseModel, Field
 from app.core.constants import NotificationType
 from app.utils.helpers import get_utc_now
@@ -9,7 +10,7 @@ class NotificationModel(BaseModel):
     """
     id: str = Field(default_factory=lambda: "ntf_" + datetime.utcnow().strftime("%Y%m%d%H%M%S"))
     user_id: str
-    type: NotificationType = NotificationType.SYSTEM
+    type: Union[NotificationType, str] = NotificationType.SYSTEM
     title: str
     body: str
     is_read: bool = False

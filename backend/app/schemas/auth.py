@@ -31,7 +31,7 @@ class UserResponse(BaseModel):
         json_encoders={datetime: lambda v: v.isoformat()},
     )
 
-    id: str
+    id: int
     email: EmailStr
     full_name: str
     role: UserRole
