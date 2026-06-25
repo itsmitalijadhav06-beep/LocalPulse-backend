@@ -3,6 +3,7 @@ from enum import Enum
 class UserRole(str, Enum):
     CITIZEN = "citizen"
     PROVIDER = "provider"
+    AUTHORITY = "authority"
     ADMIN = "admin"
 
 class IssueStatus(str, Enum):

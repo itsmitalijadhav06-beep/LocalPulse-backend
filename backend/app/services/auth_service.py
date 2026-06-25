@@ -85,10 +85,12 @@ class AuthService:
             )
             
         # Generate token with user's actual MongoDB ObjectId as string
+        role_str = user_doc["role"].value if hasattr(user_doc["role"], "value") else user_doc["role"]
         token_data = {
             "sub": str(user_doc["_id"]),
+            "user_id": str(user_doc["_id"]),
             "email": user_doc["email"],
-            "role": user_doc["role"]
+            "role": role_str
         }
         access_token = create_access_token(token_data)
         

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from fastapi.responses import JSONResponse
 from app.schemas.auth import UserRegister, UserLogin, UserResponse
 from app.services.auth_service import AuthService
@@ -12,6 +12,14 @@ async def register(user_in: UserRegister) -> JSONResponse:
     """
     Register a new user account.
     """
+    if user_in.role == "admin" or (hasattr(user_in.role, "value") and user_in.role.value == "admin"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={
+                "success": False,
+                "message": "Admin accounts cannot be created through registration."
+            }
+        )
     user_data = await AuthService.register_user(user_in)
     return standard_response(
         success=True,

@@ -132,14 +132,20 @@ class ProviderService:
     ) -> List[ProviderResponse]:
         logger.info(f"ProviderService: Listing providers (category={category}, limit={limit})")
         
+        logger.info(f"Category filter applied: {category}")
+        
         query = {}
         if category:
             query["category"] = category.value if hasattr(category, "value") else category
+            
+        logger.info(f"MongoDB query executed: {query}")
             
         cursor = db_client.db.providers.find(query).skip(skip).limit(limit)
         providers = []
         async for saved_provider in cursor:
             providers.append(await cls._map_provider_to_response(saved_provider))
+            
+        logger.info(f"Number of providers found: {len(providers)}")
         return providers
 
     @classmethod
@@ -180,3 +186,17 @@ class ProviderService:
             await db_client.db.providers.update_one({"_id": obj_id}, {"$set": update_data})
             
         return await cls.get_provider_by_id(str(obj_id))
+
+    @classmethod
+    async def delete_provider(cls, provider_id: str) -> bool:
+        logger.info(f"ProviderService: Deleting provider {provider_id}")
+        query = {}
+        if isinstance(provider_id, int) or (isinstance(provider_id, str) and provider_id.isdigit()):
+            query = {"provider_id": int(provider_id)}
+        elif isinstance(provider_id, str) and ObjectId.is_valid(provider_id):
+            query = {"_id": ObjectId(provider_id)}
+        else:
+            return False
+
+        result = await db_client.db.providers.delete_one(query)
+        return result.deleted_count > 0

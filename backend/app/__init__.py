@@ -1,1 +1,0 @@
-"""LocalPulse Backend Application Package."""

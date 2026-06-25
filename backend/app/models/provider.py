@@ -8,10 +8,10 @@ class ProviderModel(BaseModel):
     """
     Placeholder Database Model representing the Provider collection in MongoDB.
     """
-    id: str = Field(default_factory=lambda: "prv_" + datetime.utcnow().strftime("%Y%m%d%H%M%S"))
+    id: str = Field(default_factory=lambda: "prv_" + get_utc_now().strftime("%Y%m%d%H%M%S"))
     name: str
     user_id: str  # Associated user account
-    category: Union[ProviderCategory, str] = ProviderCategory.OTHER
+    category: ProviderCategory = ProviderCategory.OTHER
     contact_email: str
     contact_phone: str
     service_radius_km: float = 10.0

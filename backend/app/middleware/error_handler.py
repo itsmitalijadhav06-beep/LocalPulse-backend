@@ -26,6 +26,11 @@ async def http_exception_handler(request: Request, exc: Any) -> JSONResponse:
     Handle standard HTTPExceptions thrown during request processing.
     """
     logger.warning(f"HTTP exception at {request.url.path}: {exc.status_code} - {exc.detail}")
+    if isinstance(exc.detail, dict):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content=exc.detail
+        )
     return standard_response(
         success=False,
         message=exc.detail,

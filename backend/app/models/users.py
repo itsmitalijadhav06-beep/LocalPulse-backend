@@ -8,7 +8,7 @@ class UserModel(BaseModel):
     """
     Database Model representing the User collection in MongoDB.
     """
-    id: str = Field(default_factory=lambda: "usr_" + datetime.utcnow().strftime("%Y%m%d%H%M%S"))
+    id: str = Field(default_factory=lambda: "usr_" + get_utc_now().strftime("%Y%m%d%H%M%S"))
     email: EmailStr
     hashed_password: str
     full_name: str

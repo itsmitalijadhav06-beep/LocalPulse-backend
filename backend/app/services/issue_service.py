@@ -160,12 +160,12 @@ class IssueService:
             prov_id_val = issue_update.assigned_provider_id
             prov_obj_id = None
             if prov_id_val:
-                if str(prov_id_val).isdigit():
+                if prov_id_val.isdigit():
                     p_doc = await db_client.db.providers.find_one({"provider_id": int(prov_id_val)})
                     if p_doc:
                         prov_obj_id = p_doc["_id"]
-                elif ObjectId.is_valid(str(prov_id_val)):
-                    prov_obj_id = ObjectId(str(prov_id_val))
+                elif ObjectId.is_valid(prov_id_val):
+                    prov_obj_id = ObjectId(prov_id_val)
             update_data["assigned_provider_id"] = prov_obj_id
         if issue_update.image_url is not None:
             update_data["image_url"] = issue_update.image_url

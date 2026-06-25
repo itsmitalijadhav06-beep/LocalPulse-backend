@@ -1,15 +1,17 @@
 from fastapi import APIRouter, Depends, status, Query
 from fastapi.responses import JSONResponse
-from app.core.dependencies import RoleChecker
+from app.core.dependencies import require_role
 from app.core.constants import UserRole
 from app.services.dashboard_service import DashboardService
 from app.utils.response import standard_response
+from app.schemas.system_config import SystemConfigUpdate
+from app.services.system_config_service import SystemConfigService
 
 # Restrict the entire router to users with the 'admin' role
 router = APIRouter(
     prefix="/admin", 
     tags=["Administration"],
-    dependencies=[Depends(RoleChecker([UserRole.ADMIN]))]
+    dependencies=[Depends(require_role(["admin"]))]
 )
 
 @router.get("/stats", response_class=JSONResponse)
@@ -38,12 +40,13 @@ async def moderate_comment(
     )
 
 @router.put("/system-config", response_class=JSONResponse)
-async def update_system_config(config_updates: dict) -> JSONResponse:
+async def update_system_config(config_updates: SystemConfigUpdate) -> JSONResponse:
     """
     Modify application-wide defaults and system parameters.
     """
+    updated_config = await SystemConfigService.update_config(config_updates)
     return standard_response(
         success=True,
         message="System configuration parameters updated.",
-        data=config_updates
+        data=updated_config.model_dump(mode="json")
     )

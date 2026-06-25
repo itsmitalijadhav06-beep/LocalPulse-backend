@@ -5,7 +5,7 @@ from app.core.constants import ProviderCategory
 
 class ProviderCreate(BaseModel):
     name: str = Field(..., min_length=2, max_length=100)
-    category: Union[ProviderCategory, str]
+    category: ProviderCategory
     contact_email: EmailStr
     contact_phone: str
     service_radius_km: float = Field(default=10.0, ge=0.5, le=100.0)
@@ -14,7 +14,7 @@ class ProviderCreate(BaseModel):
 
 class ProviderUpdate(BaseModel):
     name: Optional[str] = None
-    category: Optional[Union[ProviderCategory, str]] = None
+    category: Optional[ProviderCategory] = None
     contact_email: Optional[EmailStr] = None
     contact_phone: Optional[str] = None
     service_radius_km: Optional[float] = None
@@ -30,7 +30,7 @@ class ProviderResponse(BaseModel):
     id: int
     name: str
     user_id: int
-    category: Union[ProviderCategory, str]
+    category: ProviderCategory
     contact_email: EmailStr
     contact_phone: str
     service_radius_km: float

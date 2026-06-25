@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from typing import Optional
 from app.schemas.provider import ProviderCreate, ProviderUpdate
 from app.services.provider_service import ProviderService
-from app.core.dependencies import get_current_user
+from app.core.dependencies import get_current_user, require_role
 from app.core.constants import ProviderCategory
 from app.utils.response import standard_response
 
@@ -12,7 +12,7 @@ router = APIRouter(prefix="/providers", tags=["Providers"])
 @router.post("/register", response_class=JSONResponse, status_code=status.HTTP_201_CREATED)
 async def register_provider(
     provider_in: ProviderCreate,
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(require_role(["admin"]))
 ) -> JSONResponse:
     """
     Register the current user as a Local Service Provider.
@@ -63,7 +63,7 @@ async def get_provider(provider_id: str) -> JSONResponse:
 async def update_provider(
     provider_id: str,
     provider_update: ProviderUpdate,
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(require_role(["admin"]))
 ) -> JSONResponse:
     """
     Update service radius, contact details, or location of a provider.
@@ -79,4 +79,24 @@ async def update_provider(
         success=True,
         message="Provider profile updated successfully.",
         data=provider.model_dump()
+    )
+
+@router.delete("/{provider_id}", response_class=JSONResponse)
+async def delete_provider(
+    provider_id: str,
+    current_user: dict = Depends(require_role(["admin"]))
+) -> JSONResponse:
+    """
+    Delete a service provider profile.
+    """
+    success = await ProviderService.delete_provider(provider_id)
+    if not success:
+        return standard_response(
+            success=False,
+            message="Provider not found.",
+            status_code=status.HTTP_404_NOT_FOUND
+        )
+    return standard_response(
+        success=True,
+        message="Provider profile deleted successfully."
     )

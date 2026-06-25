@@ -103,15 +103,19 @@ class DashboardService:
         logger.info("DashboardService: Creating administrator global stats summary")
         
         total_users = await db_client.db.users.count_documents({})
-        total_issues_reported = await db_client.db.issues.count_documents({})
-        total_issues_resolved = await db_client.db.issues.count_documents({"status": "resolved"})
-        total_active_providers = await db_client.db.providers.count_documents({})
+        total_issues = await db_client.db.issues.count_documents({})
+        open_issues = await db_client.db.issues.count_documents({"status": "Open"})
+        resolved_issues = await db_client.db.issues.count_documents({"status": "resolved"})
+        total_events = await db_client.db.events.count_documents({})
+        total_providers = await db_client.db.providers.count_documents({})
+        total_comments = await db_client.db.comments.count_documents({})
         
         return {
             "total_users": total_users,
-            "total_issues_reported": total_issues_reported,
-            "total_issues_resolved": total_issues_resolved,
-            "total_active_providers": total_active_providers,
-            "system_health": "good",
-            "pending_moderation_comments": 0
+            "total_issues": total_issues,
+            "open_issues": open_issues,
+            "resolved_issues": resolved_issues,
+            "total_events": total_events,
+            "total_providers": total_providers,
+            "total_comments": total_comments
         }

@@ -44,6 +44,8 @@ class MongoDBManager:
             logger.info("✅ Connected to MongoDB Atlas")
             logger.info(f"Database: {settings.MONGODB_DB_NAME}")
             await run_startup_migrations()
+            await create_default_admin()
+            await initialize_system_config()
         except Exception as e:
             logger.error(f"❌ Failed to connect to MongoDB: {e}")
             raise e
@@ -93,6 +95,62 @@ async def run_startup_migrations() -> None:
             )
             logger.info(f"Assigned sequential ID {seq_val} ({id_field}) to {coll_name} doc {doc['_id']}")
     logger.info("Startup migrations completed.")
+
+async def create_default_admin() -> None:
+    """
+    Checks if an admin user exists in the database.
+    If not, creates the default admin user with password Admin@123 hashed using bcrypt.
+    """
+    existing_admin = await db_client.db.users.find_one({"role": "admin"})
+    if existing_admin:
+        logger.info("Admin user already exists. Skipping default admin creation.")
+        return
+
+    logger.info("No admin user found. Creating default administrator...")
+    from datetime import datetime, timezone
+    from app.core.security import get_password_hash
+    
+    hashed_password = get_password_hash("Admin@123")
+    user_id = await get_next_sequence_value("users")
+    
+    admin_doc = {
+        "user_id": user_id,
+        "email": "admin@localpulse.com",
+        "password": hashed_password,
+        "full_name": "System Administrator",
+        "role": "admin",
+        "phone_number": "9999999999",
+        "is_active": True,
+        "created_at": datetime.now(timezone.utc)
+    }
+    
+    await db_client.db.users.insert_one(admin_doc)
+    logger.info("✅ Default admin user created successfully.")
+
+async def initialize_system_config() -> None:
+    """
+    Checks if a system configuration document exists in the database.
+    If not, creates the default system configuration.
+    """
+    existing_config = await db_client.db.system_config.find_one({"_id": "config"})
+    if existing_config:
+        logger.info("System configuration already exists. Skipping initialization.")
+        return
+
+    logger.info("No system configuration found. Initializing default configuration...")
+    default_config = {
+        "_id": "config",
+        "maintenance_mode": False,
+        "allow_registration": True,
+        "issue_auto_assignment": False,
+        "max_upload_size_mb": 10,
+        "default_search_radius_km": 5,
+        "notifications_enabled": True,
+        "provider_auto_approval": False,
+        "event_creation_enabled": True,
+    }
+    await db_client.db.system_config.insert_one(default_config)
+    logger.info("✅ Default system configuration initialized successfully.")
 
 async def get_db() -> AsyncGenerator[Any, None]:
     """

@@ -6,7 +6,7 @@ class CommentModel(BaseModel):
     """
     Placeholder Database Model representing the Comment collection in MongoDB.
     """
-    id: str = Field(default_factory=lambda: "cmt_" + datetime.utcnow().strftime("%Y%m%d%H%M%S"))
+    id: str = Field(default_factory=lambda: "cmt_" + get_utc_now().strftime("%Y%m%d%H%M%S"))
     issue_id: str
     author_id: str
     author_name: str

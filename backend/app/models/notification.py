@@ -8,7 +8,7 @@ class NotificationModel(BaseModel):
     """
     Placeholder Database Model representing the Notification collection in MongoDB.
     """
-    id: str = Field(default_factory=lambda: "ntf_" + datetime.utcnow().strftime("%Y%m%d%H%M%S"))
+    id: str = Field(default_factory=lambda: "ntf_" + get_utc_now().strftime("%Y%m%d%H%M%S"))
     user_id: str
     type: Union[NotificationType, str] = NotificationType.SYSTEM
     title: str
