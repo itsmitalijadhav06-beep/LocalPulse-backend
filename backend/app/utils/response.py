@@ -1,4 +1,6 @@
 from typing import Any, Optional
+from uuid import UUID
+from bson import ObjectId
 from fastapi import status
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
@@ -30,5 +32,11 @@ def standard_response(
     }
     return JSONResponse(
         status_code=status_code,
-        content=jsonable_encoder(payload),
+        content=jsonable_encoder(
+            payload,
+            custom_encoder={
+                ObjectId: str,
+                UUID: str,
+            }
+        ),
     )
