@@ -25,22 +25,29 @@ export const dashboardService = {
     const nearbyEvents = eventsRes.data.data || [];
     const nearbyProviders = providersRes.data.data || [];
 
-    // Fetch system statistics conditionally
+    // Fetch citizen statistics conditionally based on location
     let stats: AdminStats | null = null;
     try {
-      const statsRes = await api.get<APIResponse<any>>("/admin/stats");
+      const statsRes = await api.get<APIResponse<any>>("/dashboard/citizen-summary", {
+        params: {
+          latitude: params?.latitude ?? 0.0,
+          longitude: params?.longitude ?? 0.0,
+          radius_km: params?.radiusKm ?? 5.0,
+        },
+      });
       const backendStats = statsRes.data.data;
       if (backendStats) {
         stats = {
-          totalReports: backendStats.total_issues ?? 0,
-          openIssues: backendStats.open_issues ?? 0,
-          resolvedIssues: backendStats.resolved_issues ?? 0,
-          events: backendStats.total_events ?? 0,
-          users: backendStats.total_users ?? 0,
+          totalReports: backendStats.recent_issues_count ?? 0,
+          openIssues: Math.max(0, (backendStats.recent_issues_count ?? 0) - (backendStats.resolved_issues_count ?? 0)),
+          resolvedIssues: backendStats.resolved_issues_count ?? 0,
+          events: backendStats.upcoming_events_count ?? 0,
+          users: 0,
+          providers: backendStats.nearby_providers_count ?? 0,
         };
       }
     } catch {
-      // Default / fallback stats for citizens/providers (to prevent 403 crashes)
+      // Default / fallback stats for citizens/providers
       stats = {
         totalReports: nearbyIssues.length,
         openIssues: nearbyIssues.filter((i) => i.status === "open").length,

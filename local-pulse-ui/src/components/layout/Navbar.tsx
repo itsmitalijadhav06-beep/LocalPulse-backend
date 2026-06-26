@@ -105,7 +105,7 @@ export function Navbar() {
               className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground border rounded-lg px-2.5 py-1.5 hover:bg-muted transition-colors max-w-[160px]"
             >
               <MapPin className="h-3.5 w-3.5 text-primary shrink-0" />
-              <span className="truncate font-medium">{locationLabel}</span>
+              <span className="truncate font-medium" suppressHydrationWarning>{locationLabel}</span>
               <ChevronDown className="h-3 w-3 shrink-0" />
             </button>
           )}
