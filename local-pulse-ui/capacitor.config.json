@@ -3,7 +3,7 @@
   "appName": "LocalPulse",
   "webDir": "dist",
   "server": {
-    "url": "https://local-pulse-ui.vercel.app",
+    "url": "https://local-pulse-backend.vercel.app",
     "cleartext": true
   },
   "android": {
