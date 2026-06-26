@@ -10,10 +10,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { ISSUE_CATEGORIES } from "@/constants";
-import { Camera, MapPin, Sparkles, Loader2 } from "lucide-react";
+import { Camera, MapPin, Sparkles, Loader2, Navigation } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { issueService } from "@/services/issue.service";
 import { useQueryClient } from "@tanstack/react-query";
+import { LocationPicker } from "@/components/LocationPicker";
+import { useApp } from "@/contexts/AppContext";
 
 const schema = z.object({
   title: z.string().min(5, "Title is too short"),
@@ -37,13 +39,29 @@ function ReportPage() {
   const { isLoading: guardLoading } = useRouteGuard(["citizen", "admin"]);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { userLocation } = useApp();
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [showLocationPicker, setShowLocationPicker] = useState(false);
+  const [pickedLocation, setPickedLocation] = useState<{ latitude: number; longitude: number; city: string } | null>(
+    userLocation.isSet ? userLocation : null
+  );
 
-  const { register, handleSubmit, watch, setValue, formState: { errors, isSubmitting } } = useForm<FormVals>({
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<FormVals>({
     resolver: zodResolver(schema),
-    defaultValues: { latitude: 22.7196, longitude: 75.8577, anonymous: false, category: "road" },
+    defaultValues: {
+      latitude: userLocation.isSet ? userLocation.latitude : 0,
+      longitude: userLocation.isSet ? userLocation.longitude : 0,
+      anonymous: false,
+      category: "road",
+    },
   });
 
   if (guardLoading) {
@@ -56,6 +74,15 @@ function ReportPage() {
 
   const category = watch("category");
   const anonymous = watch("anonymous");
+  const lat = watch("latitude");
+  const lng = watch("longitude");
+
+  const handleLocationPicked = (loc: { latitude: number; longitude: number; city: string }) => {
+    setPickedLocation(loc);
+    setValue("latitude", loc.latitude);
+    setValue("longitude", loc.longitude);
+    setShowLocationPicker(false);
+  };
 
   const onSubmit = async (values: FormVals) => {
     setApiError(null);
@@ -94,6 +121,7 @@ function ReportPage() {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/* Photo */}
           <div className="bg-card border rounded-2xl p-5 space-y-4">
             <Label>Photo</Label>
             <label className="block aspect-[16/9] rounded-xl border-2 border-dashed bg-muted/40 hover:bg-muted cursor-pointer overflow-hidden">
@@ -116,6 +144,7 @@ function ReportPage() {
             </div>
           </div>
 
+          {/* Details */}
           <div className="bg-card border rounded-2xl p-5 space-y-4">
             <div>
               <Label htmlFor="title">Title</Label>
@@ -137,7 +166,7 @@ function ReportPage() {
                     onClick={() => setValue("category", c.value)}
                     className={cn(
                       "px-2 py-3 rounded-xl border text-xs font-semibold flex flex-col items-center gap-1 transition-colors",
-                      category === c.value ? "bg-primary text-primary-foreground border-primary" : "bg-card hover:bg-muted",
+                      category === c.value ? "bg-primary text-primary-foreground border-primary" : "bg-card hover:bg-muted"
                     )}
                   >
                     <span className="text-xl">{c.emoji}</span>
@@ -148,25 +177,54 @@ function ReportPage() {
             </div>
           </div>
 
+          {/* Location */}
           <div className="bg-card border rounded-2xl p-5 space-y-4">
-            <Label>Location</Label>
-            <div className="flex items-center gap-2 p-3 rounded-xl border bg-muted/30">
-              <MapPin className="h-4 w-4 text-primary shrink-0" />
-              <span className="text-sm truncate">MG Road, Indore (auto-detected)</span>
-              <Button type="button" size="sm" variant="ghost" className="ml-auto">Change</Button>
+            <div className="flex items-center justify-between">
+              <Label>Location</Label>
+              {pickedLocation && (
+                <span className="text-xs text-muted-foreground">
+                  {pickedLocation.latitude.toFixed(5)}, {pickedLocation.longitude.toFixed(5)}
+                </span>
+              )}
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label htmlFor="lat" className="text-xs">Latitude</Label>
-                <Input id="lat" type="number" step="0.0001" className="mt-1 h-10" {...register("latitude", { valueAsNumber: true })} />
+
+            {pickedLocation ? (
+              <div className="flex items-center gap-2 p-3 rounded-xl border bg-primary/5 border-primary/20">
+                <MapPin className="h-4 w-4 text-primary shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold truncate">{pickedLocation.city}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {pickedLocation.latitude.toFixed(5)}, {pickedLocation.longitude.toFixed(5)}
+                  </div>
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  className="ml-auto shrink-0"
+                  onClick={() => setShowLocationPicker(true)}
+                >
+                  Change
+                </Button>
               </div>
-              <div>
-                <Label htmlFor="lng" className="text-xs">Longitude</Label>
-                <Input id="lng" type="number" step="0.0001" className="mt-1 h-10" {...register("longitude", { valueAsNumber: true })} />
-              </div>
-            </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowLocationPicker(true)}
+                className="w-full flex flex-col items-center gap-2 p-6 rounded-xl border-2 border-dashed hover:bg-muted transition-colors"
+              >
+                <Navigation className="h-6 w-6 text-muted-foreground" />
+                <div className="text-sm font-medium">Select issue location</div>
+                <div className="text-xs text-muted-foreground">Pin on map or use your current location</div>
+              </button>
+            )}
+
+            {errors.latitude && (
+              <p className="text-xs text-destructive">Please select a location on the map</p>
+            )}
           </div>
 
+          {/* Anonymous */}
           <div className="bg-card border rounded-2xl p-5 flex items-center justify-between gap-3">
             <div>
               <div className="font-semibold text-sm">Report anonymously</div>
@@ -178,13 +236,28 @@ function ReportPage() {
           {apiError && <p className="text-xs text-destructive bg-destructive/10 rounded-lg px-3 py-2">{apiError}</p>}
 
           <div className="flex gap-3 sticky bottom-20 lg:static bg-background/80 backdrop-blur lg:bg-transparent p-2 lg:p-0 -mx-2 lg:mx-0 rounded-xl">
-            <Button type="button" variant="outline" className="flex-1 h-12" onClick={() => navigate({ to: "/feed" })}>Cancel</Button>
-            <Button type="submit" disabled={isSubmitting} className="flex-1 h-12 text-base font-semibold">
+            <Button type="button" variant="outline" className="flex-1 h-12" onClick={() => navigate({ to: "/feed" })}>
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={isSubmitting || !pickedLocation}
+              className="flex-1 h-12 text-base font-semibold"
+            >
               {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Submit report"}
             </Button>
           </div>
         </form>
       </div>
+
+      {/* Location picker modal */}
+      {showLocationPicker && (
+        <LocationPicker
+          value={pickedLocation}
+          onChange={handleLocationPicked}
+          onClose={() => setShowLocationPicker(false)}
+        />
+      )}
     </AppShell>
   );
 }

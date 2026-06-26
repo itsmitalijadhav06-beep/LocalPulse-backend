@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { RadiusSelector } from "@/components/RadiusSelector";
 import { IssueCard } from "@/components/IssueCard";
@@ -9,7 +10,9 @@ import { FloatingActionButton } from "@/components/FloatingActionButton";
 import { SkeletonCard } from "@/components/SkeletonCard";
 import { dashboardService } from "@/services/dashboard.service";
 import { useApp } from "@/contexts/AppContext";
-import { ArrowRight, FileText, CheckCircle2, AlertTriangle, Users } from "lucide-react";
+import { ArrowRight, FileText, CheckCircle2, AlertTriangle, Users, MapPin, Navigation } from "lucide-react";
+import { LocationPicker } from "@/components/LocationPicker";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — LocalPulse" }] }),
@@ -21,10 +24,20 @@ import { Loader2 } from "lucide-react";
 
 function Dashboard() {
   const { isLoading: guardLoading, user } = useRouteGuard(["citizen", "admin"]);
-  const { radiusKm } = useApp();
+  const { radiusKm, userLocation, setUserLocation, detectLocation, isDetectingLocation } = useApp();
+  const [showPicker, setShowPicker] = useState(false);
+
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["dashboard", radiusKm],
-    queryFn: () => dashboardService.overview({ radiusKm }).then((res) => res.data.data),
+    queryKey: ["dashboard", radiusKm, userLocation.latitude, userLocation.longitude],
+    queryFn: () =>
+      dashboardService
+        .overview({
+          radiusKm,
+          ...(userLocation.isSet
+            ? { latitude: userLocation.latitude, longitude: userLocation.longitude }
+            : {}),
+        })
+        .then((res) => res.data.data),
     enabled: !guardLoading,
   });
 
@@ -55,21 +68,75 @@ function Dashboard() {
   return (
     <AppShell>
       <div className="space-y-8">
+        {/* Hero */}
         <div className="rounded-3xl bg-gradient-to-br from-primary to-[color:var(--civic-orange)] text-primary-foreground p-6 md:p-8 shadow-sm">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
             <div>
               <p className="text-sm opacity-90">Namaste{user?.name ? `, ${user.name}` : ""} 👋</p>
               <h1 className="text-2xl md:text-3xl font-extrabold mt-1">Your neighborhood, in one view</h1>
               <p className="text-sm opacity-90 mt-2 max-w-lg">
-                {stats ? `${stats.openIssues ?? 0} issues need attention near you.` : "Loading your neighborhood updates..."}
+                {stats
+                  ? `${stats.openIssues ?? 0} issues need attention near you.`
+                  : "Loading your neighborhood updates..."}
               </p>
+              {/* Location display */}
+              <button
+                onClick={() => setShowPicker(true)}
+                className="mt-3 inline-flex items-center gap-1.5 bg-white/20 hover:bg-white/30 text-white text-xs font-medium px-3 py-1.5 rounded-full transition-colors"
+              >
+                <MapPin className="h-3.5 w-3.5" />
+                {userLocation.isSet ? userLocation.city : "Set your location"}
+              </button>
             </div>
-            <Link to="/report" className="self-start md:self-end inline-flex items-center gap-2 rounded-xl bg-background text-foreground px-4 py-2.5 font-semibold shadow hover:bg-background/90">
+            <Link
+              to="/report"
+              className="self-start md:self-end inline-flex items-center gap-2 rounded-xl bg-background text-foreground px-4 py-2.5 font-semibold shadow hover:bg-background/90"
+            >
               Report Issue <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </div>
 
+        {/* Location prompt banner if not set */}
+        {!userLocation.isSet && (
+          <div className="flex items-center gap-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-2xl p-4">
+            <Navigation className="h-5 w-5 text-amber-600 shrink-0" />
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-semibold text-amber-900 dark:text-amber-200">
+                Location not set
+              </div>
+              <div className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
+                Set your location to see nearby issues, events and providers
+              </div>
+            </div>
+            <div className="flex gap-2 shrink-0">
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 text-xs border-amber-300"
+                onClick={async () => {
+                  await detectLocation();
+                }}
+                disabled={isDetectingLocation}
+              >
+                {isDetectingLocation ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <>
+                    <Navigation className="h-3.5 w-3.5 mr-1" />
+                    Auto-detect
+                  </>
+                )}
+              </Button>
+              <Button size="sm" className="h-8 text-xs" onClick={() => setShowPicker(true)}>
+                <MapPin className="h-3.5 w-3.5 mr-1" />
+                Pick on map
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Stats */}
         {isError ? (
           <p className="text-sm text-destructive">Couldn't load dashboard data. Please try again.</p>
         ) : (
@@ -118,7 +185,19 @@ function Dashboard() {
           </div>
         </section>
       </div>
+
       <FloatingActionButton />
+
+      {showPicker && (
+        <LocationPicker
+          value={userLocation.isSet ? userLocation : null}
+          onChange={(loc) => {
+            setUserLocation({ ...loc, isSet: true });
+            setShowPicker(false);
+          }}
+          onClose={() => setShowPicker(false)}
+        />
+      )}
     </AppShell>
   );
 }

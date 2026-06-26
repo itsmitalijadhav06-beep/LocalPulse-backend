@@ -6,7 +6,7 @@ import { eventService } from "./event.service";
 import { providerService } from "./provider.service";
 
 export const dashboardService = {
-  overview: async (params?: { radiusKm?: number }): Promise<{
+  overview: async (params?: { radiusKm?: number; latitude?: number; longitude?: number }): Promise<{
     data: APIResponse<{
       stats: AdminStats | null;
       nearbyIssues: Issue[];
