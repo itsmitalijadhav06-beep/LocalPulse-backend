@@ -1,0 +1,146 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --color-civic-orange: var(--civic-orange);
+  --color-civic-orange-soft: var(--civic-orange-soft);
+  --color-civic-blue: var(--civic-blue);
+  --color-civic-blue-soft: var(--civic-blue-soft);
+  --color-status-open: var(--status-open);
+  --color-status-review: var(--status-review);
+  --color-status-progress: var(--status-progress);
+  --color-status-resolved: var(--status-resolved);
+
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --radius: 0.875rem;
+
+  --background: oklch(0.99 0.005 80);
+  --foreground: oklch(0.2 0.02 250);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2 0.02 250);
+
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.2 0.02 250);
+
+  /* Primary = civic orange */
+  --primary: oklch(0.7 0.18 50);
+  --primary-foreground: oklch(0.99 0.005 80);
+
+  /* Secondary = civic blue */
+  --secondary: oklch(0.55 0.16 250);
+  --secondary-foreground: oklch(0.99 0.005 80);
+
+  --muted: oklch(0.96 0.005 250);
+  --muted-foreground: oklch(0.5 0.02 250);
+
+  --accent: oklch(0.95 0.03 50);
+  --accent-foreground: oklch(0.3 0.1 50);
+
+  --destructive: oklch(0.6 0.22 25);
+  --destructive-foreground: oklch(0.99 0.005 80);
+
+  --border: oklch(0.92 0.01 250);
+  --input: oklch(0.92 0.01 250);
+  --ring: oklch(0.7 0.18 50);
+
+  --civic-orange: oklch(0.7 0.18 50);
+  --civic-orange-soft: oklch(0.95 0.05 55);
+  --civic-blue: oklch(0.55 0.16 250);
+  --civic-blue-soft: oklch(0.95 0.04 245);
+
+  --status-open: oklch(0.65 0.2 30);
+  --status-review: oklch(0.75 0.16 80);
+  --status-progress: oklch(0.6 0.16 250);
+  --status-resolved: oklch(0.65 0.16 150);
+
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.2 0.02 250);
+  --sidebar-primary: oklch(0.7 0.18 50);
+  --sidebar-primary-foreground: oklch(0.99 0.005 80);
+  --sidebar-accent: oklch(0.96 0.02 50);
+  --sidebar-accent-foreground: oklch(0.3 0.1 50);
+  --sidebar-border: oklch(0.92 0.01 250);
+  --sidebar-ring: oklch(0.7 0.18 50);
+
+  --chart-1: oklch(0.7 0.18 50);
+  --chart-2: oklch(0.55 0.16 250);
+  --chart-3: oklch(0.65 0.16 150);
+  --chart-4: oklch(0.75 0.16 80);
+  --chart-5: oklch(0.6 0.22 25);
+}
+
+.dark {
+  --background: oklch(0.16 0.02 250);
+  --foreground: oklch(0.97 0.005 80);
+  --card: oklch(0.2 0.02 250);
+  --card-foreground: oklch(0.97 0.005 80);
+  --popover: oklch(0.2 0.02 250);
+  --popover-foreground: oklch(0.97 0.005 80);
+  --primary: oklch(0.72 0.18 50);
+  --primary-foreground: oklch(0.16 0.02 250);
+  --secondary: oklch(0.6 0.16 250);
+  --secondary-foreground: oklch(0.97 0.005 80);
+  --muted: oklch(0.25 0.02 250);
+  --muted-foreground: oklch(0.7 0.02 250);
+  --accent: oklch(0.28 0.05 50);
+  --accent-foreground: oklch(0.95 0.05 55);
+  --destructive: oklch(0.65 0.22 25);
+  --destructive-foreground: oklch(0.97 0.005 80);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.72 0.18 50);
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* Leaflet z-index fix to keep map below sticky UI */
+.leaflet-container { z-index: 0; }
