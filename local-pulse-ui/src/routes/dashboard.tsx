@@ -28,11 +28,13 @@ function Dashboard() {
     enabled: !guardLoading,
   });
 
-  if (guardLoading) {
+  if (guardLoading || isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
+      <AppShell>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </AppShell>
     );
   }
 
@@ -43,10 +45,10 @@ function Dashboard() {
 
   const statCards = stats
     ? [
-        { label: "Total Reports", value: stats.totalReports, icon: FileText, color: "text-secondary bg-secondary/10" },
-        { label: "Open", value: stats.openIssues, icon: AlertTriangle, color: "text-[color:var(--status-open)] bg-[color:var(--status-open)]/10" },
-        { label: "Resolved", value: stats.resolvedIssues, icon: CheckCircle2, color: "text-[color:var(--status-resolved)] bg-[color:var(--status-resolved)]/10" },
-        { label: "Citizens", value: stats.users, icon: Users, color: "text-primary bg-primary/10" },
+        { label: "Total Reports", value: stats.totalReports ?? 0, icon: FileText, color: "text-secondary bg-secondary/10" },
+        { label: "Open", value: stats.openIssues ?? 0, icon: AlertTriangle, color: "text-[color:var(--status-open)] bg-[color:var(--status-open)]/10" },
+        { label: "Resolved", value: stats.resolvedIssues ?? 0, icon: CheckCircle2, color: "text-[color:var(--status-resolved)] bg-[color:var(--status-resolved)]/10" },
+        { label: "Citizens", value: stats.users ?? 0, icon: Users, color: "text-primary bg-primary/10" },
       ]
     : [];
 
@@ -59,7 +61,7 @@ function Dashboard() {
               <p className="text-sm opacity-90">Namaste{user?.name ? `, ${user.name}` : ""} 👋</p>
               <h1 className="text-2xl md:text-3xl font-extrabold mt-1">Your neighborhood, in one view</h1>
               <p className="text-sm opacity-90 mt-2 max-w-lg">
-                {stats ? `${stats.openIssues} issues need attention near you.` : "Loading your neighborhood updates..."}
+                {stats ? `${stats.openIssues ?? 0} issues need attention near you.` : "Loading your neighborhood updates..."}
               </p>
             </div>
             <Link to="/report" className="self-start md:self-end inline-flex items-center gap-2 rounded-xl bg-background text-foreground px-4 py-2.5 font-semibold shadow hover:bg-background/90">
@@ -72,17 +74,15 @@ function Dashboard() {
           <p className="text-sm text-destructive">Couldn't load dashboard data. Please try again.</p>
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {isLoading
-              ? Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
-              : statCards.map((s) => (
-                  <div key={s.label} className="bg-card border rounded-2xl p-4 shadow-sm">
-                    <div className={"h-10 w-10 rounded-xl grid place-items-center " + s.color}>
-                      <s.icon className="h-5 w-5" />
-                    </div>
-                    <div className="mt-3 text-2xl font-extrabold">{s.value.toLocaleString()}</div>
-                    <div className="text-xs text-muted-foreground">{s.label}</div>
-                  </div>
-                ))}
+            {statCards.map((s) => (
+              <div key={s.label} className="bg-card border rounded-2xl p-4 shadow-sm">
+                <div className={"h-10 w-10 rounded-xl grid place-items-center " + s.color}>
+                  <s.icon className="h-5 w-5" />
+                </div>
+                <div className="mt-3 text-2xl font-extrabold">{(s.value ?? 0).toLocaleString()}</div>
+                <div className="text-xs text-muted-foreground">{s.label}</div>
+              </div>
+            ))}
           </div>
         )}
 

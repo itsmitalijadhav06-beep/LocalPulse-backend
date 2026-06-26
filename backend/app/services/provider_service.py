@@ -30,7 +30,7 @@ class ProviderService:
         # Resolve assigned_issues (issues)
         assigned_issues = []
         iss_list = saved_provider.get("assigned_issues", [])
-        if iss_list:
+        if isinstance(iss_list, list):
             try:
                 iss_obj_ids = []
                 for iss in iss_list:
@@ -47,20 +47,34 @@ class ProviderService:
             except Exception:
                 pass
 
+        # Handle datetime parsing safely
+        def parse_datetime(val: Any) -> datetime:
+            if isinstance(val, datetime):
+                return val
+            if isinstance(val, str):
+                try:
+                    return datetime.fromisoformat(val.replace("Z", "+00:00"))
+                except ValueError:
+                    pass
+            return datetime.now(timezone.utc)
+
+        rating_val = saved_provider.get("rating")
+        rating = float(rating_val) if rating_val is not None else 5.0
+
         return ProviderResponse(
-            id=saved_provider["provider_id"],
-            name=saved_provider["name"],
-            user_id=user_id,
-            category=saved_provider["category"],
-            contact_email=saved_provider["contact_email"],
-            contact_phone=saved_provider["contact_phone"],
-            service_radius_km=saved_provider["service_radius_km"],
-            latitude=saved_provider["latitude"],
-            longitude=saved_provider["longitude"],
+            id=int(saved_provider.get("provider_id") or 0),
+            name=str(saved_provider.get("name") or "Unknown Provider"),
+            user_id=int(user_id),
+            category=saved_provider.get("category") or ProviderCategory.OTHER,
+            contact_email=saved_provider.get("contact_email") or "info@localpulse.com",
+            contact_phone=saved_provider.get("contact_phone") or "",
+            service_radius_km=float(saved_provider.get("service_radius_km") if saved_provider.get("service_radius_km") is not None else 10.0),
+            latitude=float(saved_provider.get("latitude") if saved_provider.get("latitude") is not None else 22.7196),
+            longitude=float(saved_provider.get("longitude") if saved_provider.get("longitude") is not None else 75.8577),
             assigned_issues=assigned_issues,
-            rating=saved_provider.get("rating", 5.0),
-            created_at=saved_provider["created_at"],
-            updated_at=saved_provider["updated_at"]
+            rating=rating,
+            created_at=parse_datetime(saved_provider.get("created_at")),
+            updated_at=parse_datetime(saved_provider.get("updated_at"))
         )
 
     @classmethod

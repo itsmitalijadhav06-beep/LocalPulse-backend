@@ -54,6 +54,9 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Configure Custom Authentication Interceptor Middleware
+app.add_middleware(AuthenticationMiddleware)
+
 # Configure CORS Middleware
 app.add_middleware(
     CORSMiddleware,
@@ -63,9 +66,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 logger.info(f"CORS Origins: {settings.CORS_ORIGINS}")
-
-# Configure Custom Authentication Interceptor Middleware
-app.add_middleware(AuthenticationMiddleware)
 
 # Bind Exception Handlers to standard and custom exceptions
 app.add_exception_handler(Exception, global_exception_handler)

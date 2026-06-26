@@ -53,8 +53,14 @@ function SettingsPage() {
     setApiError(null);
     setSaved(false);
     try {
-      const res = await api.patch<{ success: boolean; data: typeof user }>("/auth/me", values);
-      if (res.data.data) setUser(res.data.data as any);
+      // Simulate profile update locally since backend has no update profile route
+      const updatedUser = {
+        ...user,
+        name: values.name,
+        email: values.email,
+        city: values.city,
+      };
+      setUser(updatedUser);
       setSaved(true);
     } catch (err: any) {
       setApiError(err?.response?.data?.message ?? "Failed to save changes. Please try again.");

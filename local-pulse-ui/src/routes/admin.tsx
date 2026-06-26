@@ -112,11 +112,11 @@ function SummaryTab() {
 
   const cards = stats
     ? [
-        { label: "Total Reports", value: stats.totalReports, icon: FileText, color: "text-secondary bg-secondary/10" },
-        { label: "Open Issues", value: stats.openIssues, icon: AlertTriangle, color: "text-[color:var(--status-open)] bg-[color:var(--status-open)]/10" },
-        { label: "Resolved", value: stats.resolvedIssues, icon: CheckCircle2, color: "text-[color:var(--status-resolved)] bg-[color:var(--status-resolved)]/10" },
-        { label: "Events", value: stats.events, icon: Calendar, color: "text-primary bg-primary/10" },
-        { label: "Users", value: stats.users, icon: Users, color: "text-secondary bg-secondary/10" },
+        { label: "Total Reports", value: stats.totalReports ?? 0, icon: FileText, color: "text-secondary bg-secondary/10" },
+        { label: "Open Issues", value: stats.openIssues ?? 0, icon: AlertTriangle, color: "text-[color:var(--status-open)] bg-[color:var(--status-open)]/10" },
+        { label: "Resolved", value: stats.resolvedIssues ?? 0, icon: CheckCircle2, color: "text-[color:var(--status-resolved)] bg-[color:var(--status-resolved)]/10" },
+        { label: "Events", value: stats.events ?? 0, icon: Calendar, color: "text-primary bg-primary/10" },
+        { label: "Users", value: stats.users ?? 0, icon: Users, color: "text-secondary bg-secondary/10" },
       ]
     : [];
 
@@ -133,7 +133,7 @@ function SummaryTab() {
                 <div className={"h-10 w-10 rounded-xl grid place-items-center " + c.color}>
                   <c.icon className="h-5 w-5" />
                 </div>
-                <div className="mt-3 text-2xl font-extrabold">{c.value.toLocaleString()}</div>
+                <div className="mt-3 text-2xl font-extrabold">{(c.value ?? 0).toLocaleString()}</div>
                 <div className="text-xs text-muted-foreground">{c.label}</div>
               </div>
             ))}
@@ -709,7 +709,7 @@ function StatsTab() {
           <div className="flex justify-between border-b pb-2 text-sm">
             <span className="text-muted-foreground">Resolution Rate</span>
             <span className="font-semibold">
-              {stats?.totalReports ? Math.round((stats.resolvedIssues / stats.totalReports) * 100) : 0}%
+              {stats?.totalReports ? Math.round(((stats.resolvedIssues ?? 0) / stats.totalReports) * 100) : 0}%
             </span>
           </div>
         </div>
