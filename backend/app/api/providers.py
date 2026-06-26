@@ -1,5 +1,5 @@
 import logging
-from fastapi import APIRouter, Depends, status, Query
+from fastapi import APIRouter, Depends, status, Query, HTTPException
 from fastapi.responses import JSONResponse
 from typing import Optional
 from app.schemas.provider import ProviderCreate, ProviderUpdate
@@ -54,12 +54,10 @@ async def list_providers(
             data=[prv.model_dump() for prv in providers]
         )
     except Exception as e:
-        logger.exception("Failed to fetch providers")
-        return standard_response(
-            success=False,
-            message="Failed to fetch providers",
-            errors=str(e),
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+        logger.exception("Providers endpoint failed")
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
         )
 
 @router.get("/{provider_id}", response_class=JSONResponse)
