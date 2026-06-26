@@ -133,4 +133,16 @@ export const issueService = {
     }),
 
   delete: (id: string) => api.delete<APIResponse<null>>(`/issues/${id}`),
+
+  uploadImage: (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return api
+      .post<APIResponse<{ image_url: string }>>("/issues/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((res) => res.data.data.image_url);
+  },
 };

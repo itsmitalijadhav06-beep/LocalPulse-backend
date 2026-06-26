@@ -17,9 +17,7 @@ function Landing() {
       <header className="sticky top-0 z-30 bg-background/85 backdrop-blur border-b">
         <div className="max-w-7xl mx-auto h-16 px-4 md:px-6 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <div className="h-9 w-9 rounded-xl bg-primary grid place-items-center text-primary-foreground">
-              <MapPin className="h-5 w-5" />
-            </div>
+            <img src="/logo.jpg" alt="LocalPulse" className="h-9 w-9 rounded-xl object-cover" />
             <span className="font-bold text-lg">LocalPulse</span>
           </Link>
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium">

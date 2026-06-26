@@ -74,9 +74,7 @@ export function Sidebar() {
     <aside className="hidden lg:flex flex-col w-64 shrink-0 border-r bg-sidebar h-screen sticky top-0">
       {/* Logo */}
       <div className="flex items-center gap-2 px-5 h-16 border-b">
-        <div className="h-9 w-9 rounded-xl bg-primary grid place-items-center text-primary-foreground">
-          <MapPin className="h-5 w-5" />
-        </div>
+        <img src="/logo.jpg" alt="LocalPulse" className="h-9 w-9 rounded-xl object-cover" />
         <div>
           <div className="font-bold text-base leading-tight">LocalPulse</div>
           <div className="text-[11px] text-muted-foreground">

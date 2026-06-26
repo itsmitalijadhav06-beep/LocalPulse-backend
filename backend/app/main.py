@@ -4,6 +4,7 @@ from typing import AsyncGenerator
 from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
+from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.core.config import settings, setup_logging
@@ -83,6 +84,11 @@ app.include_router(providers_router, prefix=api_v1_prefix)
 app.include_router(notifications_router, prefix=api_v1_prefix)
 app.include_router(dashboard_router, prefix=api_v1_prefix)
 app.include_router(admin_router, prefix=api_v1_prefix)
+
+# Mount the static files uploads directory
+import os
+os.makedirs("uploads", exist_ok=True)
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 # Health Check Route
 @app.get("/health", tags=["Health"], status_code=status.HTTP_200_OK)

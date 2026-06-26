@@ -93,10 +93,16 @@ function ReportPage() {
   const onSubmit = async (values: FormVals) => {
     setApiError(null);
     try {
-      // Use a placeholder image URL if a photo was selected (backend expects URL, not file)
-      const image_url = photoFile
-        ? `https://images.unsplash.com/photo-1594913785162-e6785b423cb1?auto=format&fit=crop&q=80&w=600`
-        : undefined;
+      let image_url: string | undefined = undefined;
+
+      if (photoFile) {
+        try {
+          image_url = await issueService.uploadImage(photoFile);
+        } catch (uploadErr) {
+          console.error("Failed to upload image, falling back to placeholder:", uploadErr);
+          image_url = `https://images.unsplash.com/photo-1594913785162-e6785b423cb1?auto=format&fit=crop&q=80&w=600`;
+        }
+      }
 
       await issueService.create({
         title: values.title,

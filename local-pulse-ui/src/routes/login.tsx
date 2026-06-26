@@ -81,9 +81,7 @@ export function AuthShell({ title, subtitle, children }: { title: string; subtit
     <div className="min-h-screen grid lg:grid-cols-2 bg-background">
       <div className="hidden lg:flex flex-col justify-between p-10 bg-gradient-to-br from-[color:var(--civic-orange-soft)] to-[color:var(--civic-blue-soft)]">
         <Link to="/" className="flex items-center gap-2">
-          <div className="h-9 w-9 rounded-xl bg-primary grid place-items-center text-primary-foreground">
-            <MapPin className="h-5 w-5" />
-          </div>
+          <img src="/logo.jpg" alt="LocalPulse" className="h-9 w-9 rounded-xl object-cover" />
           <span className="font-bold text-lg">LocalPulse</span>
         </Link>
         <div>
@@ -97,9 +95,7 @@ export function AuthShell({ title, subtitle, children }: { title: string; subtit
       <div className="flex items-center justify-center p-6 md:p-10">
         <div className="w-full max-w-md">
           <Link to="/" className="lg:hidden flex items-center gap-2 mb-8">
-            <div className="h-9 w-9 rounded-xl bg-primary grid place-items-center text-primary-foreground">
-              <MapPin className="h-5 w-5" />
-            </div>
+            <img src="/logo.jpg" alt="LocalPulse" className="h-9 w-9 rounded-xl object-cover" />
             <span className="font-bold text-lg">LocalPulse</span>
           </Link>
           <h1 className="text-2xl md:text-3xl font-extrabold">{title}</h1>

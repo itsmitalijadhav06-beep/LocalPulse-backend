@@ -5,16 +5,20 @@ import { StatusBadge } from "./StatusBadge";
 import { ISSUE_CATEGORIES } from "@/constants";
 import { timeAgo, km } from "@/utils/format";
 import { Button } from "./ui/button";
+import { IssueImage } from "./IssueImage";
 
 export function IssueCard({ issue }: { issue: Issue }) {
   const cat = ISSUE_CATEGORIES.find((c) => c.value === issue.category);
   return (
     <article className="bg-card border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-      {issue.imageUrl && (
-        <Link to="/issues/$id" params={{ id: issue.id }} className="block aspect-[16/9] overflow-hidden bg-muted">
-          <img src={issue.imageUrl} alt={issue.title} className="h-full w-full object-cover" />
-        </Link>
-      )}
+      <Link to="/issues/$id" params={{ id: issue.id }} className="block w-full overflow-hidden bg-muted">
+        <IssueImage
+          src={issue.imageUrl}
+          alt={issue.title}
+          category={issue.category}
+          className="w-full h-[220px] object-cover rounded-t-2xl"
+        />
+      </Link>
       <div className="p-4 space-y-3">
         <div className="flex flex-wrap items-center gap-2">
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-accent text-accent-foreground text-xs font-semibold">

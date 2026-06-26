@@ -20,6 +20,7 @@ import { MapView } from "@/components/MapView";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { SkeletonCard } from "@/components/SkeletonCard";
+import { IssueImage } from "@/components/IssueImage";
 import { issueService } from "@/services/issue.service";
 import { commentService } from "@/services/comment.service";
 import { ISSUE_CATEGORIES, STATUS_LABEL } from "@/constants";
@@ -202,13 +203,12 @@ function IssueDetailsPage() {
           <div className="space-y-6">
             {/* Issue card */}
             <div className="rounded-2xl overflow-hidden border bg-card">
-              {issue.imageUrl && (
-                <img
-                  src={issue.imageUrl}
-                  alt={issue.title}
-                  className="w-full aspect-[16/9] object-cover"
-                />
-              )}
+              <IssueImage
+                src={issue.imageUrl}
+                alt={issue.title}
+                category={issue.category}
+                className="w-full aspect-[16/9] object-cover"
+              />
               <div className="p-5 space-y-3">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-accent text-accent-foreground text-xs font-semibold">

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, Query
+from fastapi import APIRouter, Depends, status, Query, File, UploadFile, Request
 from fastapi.responses import JSONResponse
 from app.schemas.issue import IssueCreate, IssueUpdate
 from app.services.issue_service import IssueService
@@ -161,3 +161,56 @@ async def subscribe_issue(
         message="Subscribed to issue updates successfully.",
         data=issue.model_dump()
     )
+
+
+@router.post("/upload", response_class=JSONResponse)
+async def upload_issue_image(
+    request: Request,
+    file: UploadFile = File(...)
+) -> JSONResponse:
+    """
+    Upload an image for an issue report.
+    """
+    import os
+    import uuid
+
+    # Check file type
+    if not file.content_type or not file.content_type.startswith("image/"):
+        return standard_response(
+            success=False,
+            message="File must be an image.",
+            status_code=status.HTTP_400_BAD_REQUEST
+        )
+    
+    # Ensure uploads directory exists
+    os.makedirs("uploads", exist_ok=True)
+    
+    # Generate unique filename
+    ext = os.path.splitext(file.filename or "")[1] or ".jpg"
+    filename = f"{uuid.uuid4()}{ext}"
+    file_path = os.path.join("uploads", filename)
+    
+    # Save file
+    try:
+        content = await file.read()
+        with open(file_path, "wb") as f:
+            f.write(content)
+    except Exception as e:
+        return standard_response(
+            success=False,
+            message=f"Failed to save image file: {str(e)}",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+        
+    # Return public URL
+    base_url = str(request.base_url)
+    if not base_url.endswith("/"):
+        base_url += "/"
+    image_url = f"{base_url}uploads/{filename}"
+    
+    return standard_response(
+        success=True,
+        message="Image uploaded successfully.",
+        data={"image_url": image_url}
+    )
+

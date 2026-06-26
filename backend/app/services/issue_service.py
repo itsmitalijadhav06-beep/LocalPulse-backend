@@ -9,6 +9,27 @@ from app.core.database import db_client
 
 logger = logging.getLogger(settings.PROJECT_NAME)
 
+def get_absolute_image_url(image_url: Optional[str]) -> Optional[str]:
+    if not image_url:
+        return None
+    if image_url.startswith("http://") or image_url.startswith("https://") or image_url.startswith("data:"):
+        return image_url
+    
+    import os
+    # Convert relative path to absolute URL
+    base_url = os.getenv("BACKEND_URL", "http://127.0.0.1:8000")
+    if not base_url.endswith("/"):
+        base_url += "/"
+        
+    # Remove leading slash or 'uploads/' prefix to avoid duplication
+    clean_path = image_url
+    if clean_path.startswith("/"):
+        clean_path = clean_path[1:]
+    
+    if clean_path.startswith("uploads/"):
+        return f"{base_url}{clean_path}"
+    return f"{base_url}uploads/{clean_path}"
+
 class IssueService:
     """
     Service for managing community issue reports using MongoDB.
@@ -69,7 +90,7 @@ class IssueService:
             assigned_provider_id=assigned_provider_id,
             latitude=saved_issue["latitude"],
             longitude=saved_issue["longitude"],
-            image_url=saved_issue.get("image_url"),
+            image_url=get_absolute_image_url(saved_issue.get("image_url")),
             upvotes=saved_issue.get("upvotes", 0),
             subscribers=subscriber_ids,
             created_at=saved_issue["created_at"],

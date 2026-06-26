@@ -65,9 +65,7 @@ export function Navbar() {
         <div className="h-16 px-4 md:px-6 flex items-center gap-3">
           {/* Logo — mobile */}
           <Link to={isAdmin ? "/admin" : "/dashboard"} className="lg:hidden flex items-center gap-2">
-            <div className="h-8 w-8 rounded-xl bg-primary grid place-items-center text-primary-foreground">
-              <MapPin className="h-4 w-4" />
-            </div>
+            <img src="/logo.jpg" alt="LocalPulse" className="h-8 w-8 rounded-xl object-cover" />
             <span className="font-bold">LocalPulse</span>
           </Link>
 
