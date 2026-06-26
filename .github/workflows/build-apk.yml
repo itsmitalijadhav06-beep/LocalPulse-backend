@@ -17,13 +17,13 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
           cache-dependency-path: local-pulse-ui/package-lock.json
 
       - name: Install dependencies
         working-directory: local-pulse-ui
-        run: npm ci
+        run: npm install
 
       - name: Build web application
         working-directory: local-pulse-ui
@@ -41,6 +41,10 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+
+      - name: Make Gradlew Executable
+        working-directory: local-pulse-ui/android
+        run: chmod +x gradlew
 
       - name: Build Android APK
         working-directory: local-pulse-ui/android
